@@ -7,26 +7,49 @@
 //
 
 import UIKit
+import Foundation
 
 class ViewController: UIViewController {
     
     @IBOutlet var city: UITextField!
-
+    @IBOutlet var message: UILabel!
     @IBAction func buttonPressed(sender: AnyObject) {
     
+       self.view.endEditing(true)
+        
        var urlString = "http://www.weather-forecast.com/locations/" + city.text.stringByReplacingOccurrencesOfString(" ", withString: "") + "/forecasts/latest"
         
         
         var url = NSURL(string: urlString)
         
         let task = NSURLSession.sharedSession().dataTaskWithURL(url!) {(data, response, error) in
-            println(NSString(data: data, encoding: NSUTF8StringEncoding))
+            
+            var urlContent = NSString(data: data, encoding: NSUTF8StringEncoding)
+            
+            let tempUrlContent: String = urlContent as String
+            
+            if (urlContent!.localizedCaseInsensitiveContainsString("<span class=\"phrase\">")) {
+            
+                var contentArray = urlContent!.componentsSeparatedByString("<span class=\"phrase\">")
+            
+                var newContentArray = contentArray[1].componentsSeparatedByString("</span>")
+            
+                dispatch_async(dispatch_get_main_queue()){
+                
+                    self.message.text = newContentArray[0].stringByReplacingOccurrencesOfString("&deg;", withString: "º") as String
+                }
+            
+            } else {
+                dispatch_async(dispatch_get_main_queue()){
+                    self.message.text = "Couldn't find that city - please try again"
+                }
+            }
         }
         
         task.resume()
     }
     
-    @IBOutlet var message: UILabel!
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
