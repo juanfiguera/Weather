@@ -26,23 +26,26 @@ class ViewController: UIViewController {
             
             var urlContent = NSString(data: data, encoding: NSUTF8StringEncoding)
             
-            let tempUrlContent: String = urlContent as String
-            
+            // checks if city exists
             if (urlContent!.localizedCaseInsensitiveContainsString("<span class=\"phrase\">")) {
             
                 var contentArray = urlContent!.componentsSeparatedByString("<span class=\"phrase\">")
             
                 var newContentArray = contentArray[1].componentsSeparatedByString("</span>")
-            
+                
+                // async content display
                 dispatch_async(dispatch_get_main_queue()){
                 
                     self.message.text = newContentArray[0].stringByReplacingOccurrencesOfString("&deg;", withString: "º") as String
                 }
             
             } else {
+                
+                // async content display
                 dispatch_async(dispatch_get_main_queue()){
                     self.message.text = "Couldn't find that city - please try again"
                 }
+                
             }
         }
         
